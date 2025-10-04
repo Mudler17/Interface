@@ -1,13 +1,13 @@
 import json
 from datetime import datetime
 import streamlit as st
-import streamlit.components.v1 as components
 
+# Seiteneinstellungen
 st.set_page_config(page_title="Zettelkasten · Philosophischer Promptbuilder", page_icon="🗂️", layout="wide")
 st.title("🗂️ Zettelkasten · Philosophischer Promptbuilder")
 st.caption("Hinweis: Keine personenbezogenen oder internen Daten eingeben.")
 
-# ---------- Funktion für kombinierte Kriterieneingabe ----------
+# ---------- Funktion für Kriterieneingabe ----------
 def kriterienfeld(label, vorschlaege, key_text, key_dropdown):
     st.markdown(f"**{label}**")
     selected = st.multiselect(
@@ -23,7 +23,7 @@ def kriterienfeld(label, vorschlaege, key_text, key_dropdown):
     eigene = [x.strip("- ").strip() for x in freie_eingabe.splitlines() if x.strip()]
     return selected + eigene
 
-# ---------- Menüs ----------
+# ---------- Linke und rechte Spalte ----------
 col1, col2 = st.columns(2)
 
 with col1:
@@ -169,34 +169,30 @@ final_prompt = f"""[HEADER_JSON_START]
 {(briefing or '').strip()}
 [CONTENT_END]""".strip()
 
-# ---------- Vorschau + Copy ----------
+# ---------- Vorschau ----------
 st.markdown("### Vorschau · Finaler Prompt")
-st.text_area("Prompt", value=final_prompt, height=380, key="prompt_area")
+st.text_area("Prompt", value=final_prompt, height=380, key="prompt_area", label_visibility="collapsed")
 
-COPY_JS = """
-<script>
-function copyPrompt(){
-  const el = document.getElementById("prompt_area");
-  if (!el) return;
-  const text = el.value || el.textContent || "";
-  navigator.clipboard.writeText(text).then(()=>{
-    const note = document.getElementById("copy-note");
-    if(note){ note.innerText = "✅ Prompt kopiert"; }
-  });
-}
-</script>
-"""
-st.markdown(COPY_JS, unsafe_allow_html=True)
-st.markdown('<div id="copy-note" style="margin:0.4rem 0; color:#3a7;"></div>', unsafe_allow_html=True)
+# ---------- Button: In Zwischenablage kopieren ----------
+st.markdown("### 📋 Prompt kopieren")
+copy_area_id = "copy-target"
 
-st.button(
-    "📋 Prompt in Zwischenablage kopieren",
-    on_click=lambda: components.html(
-        COPY_JS + '<button onclick="copyPrompt()">copy</button><script>copyPrompt()</script>',
-        height=0
-    )
+st.markdown(
+    f'<textarea id="{copy_area_id}" style="position:absolute; left:-1000px; top:-1000px;">{final_prompt}</textarea>',
+    unsafe_allow_html=True
 )
 
+st.markdown(
+    f"""
+    <button onclick="navigator.clipboard.writeText(document.getElementById('{copy_area_id}').value)">
+        📋 Prompt in Zwischenablage kopieren
+    </button>
+    <p style="color:green; font-size:0.9rem; margin-top:0.5rem;">(Funktioniert in Chrome/Edge/Firefox)</p>
+    """,
+    unsafe_allow_html=True
+)
+
+# ---------- Download-Button ----------
 st.download_button(
     "⬇️ Als .txt speichern",
     data=final_prompt.encode("utf-8"),
