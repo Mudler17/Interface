@@ -7,6 +7,22 @@ st.set_page_config(page_title="Zettelkasten · Philosophischer Promptbuilder", p
 st.title("🗂️ Zettelkasten · Philosophischer Promptbuilder")
 st.caption("Hinweis: Keine personenbezogenen oder internen Daten eingeben.")
 
+# ---------- Funktion für kombinierte Kriterieneingabe ----------
+def kriterienfeld(label, vorschlaege, key_text, key_dropdown):
+    st.markdown(f"**{label}**")
+    selected = st.multiselect(
+        f"{label} · Vorschläge (Mehrfachauswahl möglich)", 
+        options=vorschlaege, 
+        key=key_dropdown
+    )
+    freie_eingabe = st.text_area(
+        f"{label} · Eigene Eingaben (eine pro Zeile)", 
+        key=key_text, 
+        height=80
+    )
+    eigene = [x.strip("- ").strip() for x in freie_eingabe.splitlines() if x.strip()]
+    return selected + eigene
+
 # ---------- Menüs ----------
 col1, col2 = st.columns(2)
 
@@ -71,10 +87,49 @@ with col2:
         default=["leitidee", "herleitung", "reflexion"]
     )
 
-must = st.text_area("Muss-Kriterien (1/Zeile)", height=90, placeholder="- keine personenbezogenen Daten\n- prägnant, keine Füllwörter")
-nice = st.text_area("Nice-to-have (1/Zeile)", height=70, placeholder="- überraschendes Bild\n- 1 kurzer Merksatz")
-exclude = st.text_area("Ausschlüsse (1/Zeile)", height=60, placeholder="- Fachjargon ohne Erklärung\n- Quellen erfinden")
+# ---------- Kriterien-Felder ----------
+must_kriterien = kriterienfeld(
+    "Muss-Kriterien",
+    [
+        "keine personenbezogenen Daten",
+        "prägnant, keine Füllwörter",
+        "Begriffe klar definiert",
+        "verwendete Theorie muss erkennbar sein",
+        "These klar formuliert",
+        "Zettellänge maximal wie angegeben",
+    ],
+    key_text="must_text",
+    key_dropdown="must_select"
+)
 
+nice_kriterien = kriterienfeld(
+    "Nice-to-have",
+    [
+        "überraschendes Bild",
+        "prägnanter Merksatz",
+        "Verbindung zu Luhmann",
+        "analoge Beispiele",
+        "Querverweise zu anderen Zetteln",
+        "humorvolle Formulierung",
+    ],
+    key_text="nice_text",
+    key_dropdown="nice_select"
+)
+
+exclude_kriterien = kriterienfeld(
+    "Ausschlüsse",
+    [
+        "Fachjargon ohne Erklärung",
+        "Quellen erfinden",
+        "GPT verweist auf sich selbst",
+        "unbelegte Allgemeinplätze",
+        "Floskeln ohne Gehalt",
+    ],
+    key_text="exclude_text",
+    key_dropdown="exclude_select"
+)
+
+# ---------- Briefing ----------
 st.markdown("### Briefing / Inhalt")
 briefing = st.text_area(
     "Worum geht's? (Thema, Thesen, Zitate/Quellen, zu verbindende Theorien …)",
@@ -99,9 +154,9 @@ header = {
     "compliance": ["keine_personenbezogenen_daten"],
     "prio": ["must", "meta", "nice_to_have"],
     "constraints": {
-        "must": [x.strip("- ").strip() for x in must.splitlines() if x.strip()],
-        "nice_to_have": [x.strip("- ").strip() for x in nice.splitlines() if x.strip()],
-        "exclude": [x.strip("- ").strip() for x in exclude.splitlines() if x.strip()]
+        "must": must_kriterien,
+        "nice_to_have": nice_kriterien,
+        "exclude": exclude_kriterien
     }
 }
 
@@ -151,4 +206,3 @@ st.download_button(
 
 st.markdown("---")
 st.markdown("**Tipp:** Füge diesen Prompt in deinen CustomGPT ein. Der GPT sollte den oben beschriebenen Systemprompt nutzen, damit er den Header korrekt interpretiert und nur die gewünschte Ausgabe liefert.")
-
