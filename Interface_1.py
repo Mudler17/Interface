@@ -1,13 +1,14 @@
 import json
 from datetime import datetime
 import streamlit as st
+import streamlit_copybutton  # <– Zusatzmodul für Copy-Button
 
-# --- Seiteneinstellungen ---
+# Seiteneinstellungen
 st.set_page_config(page_title="Zettelkasten · Philosophischer Promptbuilder", page_icon="🗂️", layout="wide")
 st.title("🗂️ Zettelkasten · Philosophischer Promptbuilder")
 st.caption("Hinweis: Keine personenbezogenen oder internen Daten eingeben.")
 
-# --- Funktion: Dropdown + Freitext kombinieren ---
+# ---------- Funktion für Kriterieneingabe ----------
 def kriterienfeld(label, vorschlaege, key_text, key_dropdown):
     st.markdown(f"**{label}**")
     selected = st.multiselect(
@@ -23,7 +24,7 @@ def kriterienfeld(label, vorschlaege, key_text, key_dropdown):
     eigene = [x.strip("- ").strip() for x in freie_eingabe.splitlines() if x.strip()]
     return selected + eigene
 
-# --- Layout: Zwei Spalten ---
+# ---------- Linke und rechte Spalte ----------
 col1, col2 = st.columns(2)
 
 with col1:
@@ -87,7 +88,7 @@ with col2:
         default=["leitidee", "herleitung", "reflexion"]
     )
 
-# --- Kriterienfelder ---
+# ---------- Kriterien-Felder ----------
 must_kriterien = kriterienfeld(
     "Muss-Kriterien",
     [
@@ -129,15 +130,15 @@ exclude_kriterien = kriterienfeld(
     key_dropdown="exclude_select"
 )
 
-# --- Briefing / Inhalt ---
+# ---------- Briefing ----------
 st.markdown("### Briefing / Inhalt")
 briefing = st.text_area(
     "Worum geht's? (Thema, Thesen, Zitate/Quellen, zu verbindende Theorien …)",
     height=220,
-    placeholder="z. B. 'Begriff: Plastizität (Malabou) mit Predictive Processing koppeln; Risiken ästhetischer Metaphern; Bezug zu Luhmann.'"
+    placeholder="z. B. 'Begriff: Plastizität (Malabou) mit Predictive Processing koppeln; Risiken ästhetischer Metaphern; Bezug zu Luhmann.'"
 )
 
-# --- Prompt generieren ---
+# ---------- Header bauen ----------
 header = {
     "protocol": "zettel.app/1.0",
     "timestamp": datetime.utcnow().isoformat() + "Z",
@@ -169,21 +170,15 @@ final_prompt = f"""[HEADER_JSON_START]
 {(briefing or '').strip()}
 [CONTENT_END]""".strip()
 
-# --- Vorschau anzeigen ---
+# ---------- Vorschau ----------
 st.markdown("### Vorschau · Finaler Prompt")
-st.code(final_prompt, language="text")
+st.text_area("Prompt", value=final_prompt, height=380, key="prompt_area")
 
-# --- Kopieren per JavaScript ---
-st.markdown("### 📋 In Zwischenablage kopieren")
+# ---------- Kopier-Button (funktioniert mit streamlit-copybutton) ----------
+st.markdown("### 📋 Prompt in Zwischenablage kopieren")
+streamlit_copybutton.copybutton(final_prompt)
 
-copy_code = f"""
-<textarea id="prompt-copy" style="position: absolute; left: -1000px; top: -1000px;">{final_prompt}</textarea>
-<button onclick="navigator.clipboard.writeText(document.getElementById('prompt-copy').value)">📋 Prompt kopieren</button>
-<p style='color: green; font-size: 0.9rem; margin-top: 0.5rem;'>(Funktioniert in den meisten Browsern)</p>
-"""
-st.markdown(copy_code, unsafe_allow_html=True)
-
-# --- Download-Button ---
+# ---------- Download-Button ----------
 st.download_button(
     "⬇️ Als .txt speichern",
     data=final_prompt.encode("utf-8"),
@@ -191,6 +186,5 @@ st.download_button(
     mime="text/plain"
 )
 
-# --- Hinweis ---
 st.markdown("---")
 st.markdown("**Tipp:** Füge diesen Prompt in deinen CustomGPT ein. Der GPT sollte den oben beschriebenen Systemprompt nutzen, damit er den Header korrekt interpretiert und nur die gewünschte Ausgabe liefert.")
