@@ -1,7 +1,6 @@
 import json
 from datetime import datetime
 import streamlit as st
-import streamlit_copybutton  # <– Zusatzmodul für Copy-Button
 
 # Seiteneinstellungen
 st.set_page_config(page_title="Zettelkasten · Philosophischer Promptbuilder", page_icon="🗂️", layout="wide")
@@ -24,7 +23,7 @@ def kriterienfeld(label, vorschlaege, key_text, key_dropdown):
     eigene = [x.strip("- ").strip() for x in freie_eingabe.splitlines() if x.strip()]
     return selected + eigene
 
-# ---------- Linke und rechte Spalte ----------
+# ---------- Zwei Spalten ----------
 col1, col2 = st.columns(2)
 
 with col1:
@@ -138,7 +137,7 @@ briefing = st.text_area(
     placeholder="z. B. 'Begriff: Plastizität (Malabou) mit Predictive Processing koppeln; Risiken ästhetischer Metaphern; Bezug zu Luhmann.'"
 )
 
-# ---------- Header bauen ----------
+# ---------- Prompt erstellen ----------
 header = {
     "protocol": "zettel.app/1.0",
     "timestamp": datetime.utcnow().isoformat() + "Z",
@@ -170,15 +169,11 @@ final_prompt = f"""[HEADER_JSON_START]
 {(briefing or '').strip()}
 [CONTENT_END]""".strip()
 
-# ---------- Vorschau ----------
-st.markdown("### Vorschau · Finaler Prompt")
-st.text_area("Prompt", value=final_prompt, height=380, key="prompt_area")
+# ---------- Vorschau und Kopierfeld ----------
+st.markdown("### 📋 Prompt zum Kopieren (STRG+C oder Rechtsklick)")
+st.text_area("Finaler Prompt", value=final_prompt, height=380, key="copy_area")
 
-# ---------- Kopier-Button (funktioniert mit streamlit-copybutton) ----------
-st.markdown("### 📋 Prompt in Zwischenablage kopieren")
-streamlit_copybutton.copybutton(final_prompt)
-
-# ---------- Download-Button ----------
+# ---------- Download ----------
 st.download_button(
     "⬇️ Als .txt speichern",
     data=final_prompt.encode("utf-8"),
@@ -186,5 +181,6 @@ st.download_button(
     mime="text/plain"
 )
 
+# ---------- Hinweis ----------
 st.markdown("---")
 st.markdown("**Tipp:** Füge diesen Prompt in deinen CustomGPT ein. Der GPT sollte den oben beschriebenen Systemprompt nutzen, damit er den Header korrekt interpretiert und nur die gewünschte Ausgabe liefert.")
