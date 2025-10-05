@@ -9,122 +9,86 @@ st.caption("Hinweis: Keine personenbezogenen oder internen Daten eingeben.")
 
 # ---------- Funktion für Kriterieneingabe ----------
 def kriterienfeld(label, vorschlaege, key_text, key_dropdown):
+    """Erstellt ein kombiniertes Eingabefeld für Kriterien."""
     st.markdown(f"**{label}**")
     selected = st.multiselect(
-        f"{label} · Vorschläge (Mehrfachauswahl möglich)", 
-        options=vorschlaege, 
+        f"{label} · Vorschläge (Mehrfachauswahl möglich)",
+        options=vorschlaege,
         key=key_dropdown
     )
     freie_eingabe = st.text_area(
-        f"{label} · Eigene Eingaben (eine pro Zeile)", 
-        key=key_text, 
+        f"{label} · Eigene Eingaben (eine pro Zeile)",
+        key=key_text,
         height=80
     )
     eigene = [x.strip("- ").strip() for x in freie_eingabe.splitlines() if x.strip()]
     return selected + eigene
 
-# ---------- Zwei Spalten ----------
+# ---------- Zwei Spalten für die Eingabefelder ----------
 col1, col2 = st.columns(2)
 
 with col1:
     denkhorizont = st.selectbox(
         "Denkhorizont (Gedanklicher Rahmen)",
         [
-            "Erkenntnistheoretiker:in",
-            "Systemtheoretiker:in (Luhmann)",
-            "Phänomenolog:in",
-            "Dialektiker:in",
-            "Dekonstrukteur:in",
-            "Kritische Theorie",
-            "Strukturalist:in",
-            "Poststrukturalist:in",
-            "Analytische Philosophie",
-            "Kognitionswissenschaft / Predictive Processing",
-            "Essayist:in",
-            "Poet:in",
-            "Künstler:in",
-            "Analogiebauer:in",
-            "Narrativ-Designer:in",
+            "Erkenntnistheoretiker:in", "Systemtheoretiker:in (Luhmann)", "Phänomenolog:in",
+            "Dialektiker:in", "Dekonstrukteur:in", "Kritische Theorie", "Strukturalist:in",
+            "Poststrukturalist:in", "Analytische Philosophie", "Kognitionswissenschaft / Predictive Processing",
+            "Essayist:in", "Poet:in", "Künstler:in", "Analogiebauer:in", "Narrativ-Designer:in",
         ],
-        index=2
+        index=2,
+        key="denkhorizont" # Key für Reset hinzugefügt
     )
 
     ausdrucksmodus = st.selectbox(
         "Ausdrucksmodus (Stil)",
         [
-            "präzise & analytisch",
-            "spekulativ & offen",
-            "poetisch & bildhaft",
-            "aphoristisch & verdichtet",
-            "systematisch & strukturiert",
-            "kritisch & dialektisch",
-            "experimentell & spielerisch",
+            "präzise & analytisch", "spekulativ & offen", "poetisch & bildhaft",
+            "aphoristisch & verdichtet", "systematisch & strukturiert",
+            "kritisch & dialektisch", "experimentell & spielerisch",
         ],
-        index=0
+        index=0,
+        key="ausdrucksmodus" # Key für Reset hinzugefügt
     )
 
     ziel = st.selectbox(
         "Ziel (Art des Zettels)",
         [
-            "Begriff klären",
-            "These entwickeln",
-            "Gegenzettel erzeugen",
-            "Analogie entwerfen",
-            "Theorie verbinden (Brückenzettel)",
-            "Map of Content (Themenlandkarte)",
-            "Kreativer Essay / Notiz",
+            "Begriff klären", "These entwickeln", "Gegenzettel erzeugen", "Analogie entwerfen",
+            "Theorie verbinden (Brückenzettel)", "Map of Content (Themenlandkarte)", "Kreativer Essay / Notiz",
         ],
-        index=1
+        index=1,
+        key="ziel" # Key für Reset hinzugefügt
     )
 
 with col2:
-    ausgabe = st.selectbox("Ausgabeformat", ["markdown", "liste", "tabelle", "yaml", "json"], index=0)
-    laenge = st.select_slider("Ziellänge (Wörter)", options=[150, 300, 500, 700, 1000, 1500], value=500)
-
+    ausgabe = st.selectbox("Ausgabeformat", ["markdown", "liste", "tabelle", "yaml", "json"], index=0, key="ausgabe")
+    laenge = st.select_slider("Ziellänge (Wörter)", options=[150, 300, 500, 700, 1000, 1500], value=500, key="laenge")
     struktur = st.multiselect(
         "Strukturelemente",
         ["leitidee", "herleitung", "beispiele", "reflexion", "implikationen", "offene_fragen", "begriffsarbeit", "verweise"],
-        default=["leitidee", "herleitung", "reflexion"]
+        default=["leitidee", "herleitung", "reflexion"],
+        key="struktur" # Key für Reset hinzugefügt
     )
 
 # ---------- Kriterien-Felder ----------
 must_kriterien = kriterienfeld(
     "Muss-Kriterien",
-    [
-        "keine personenbezogenen Daten",
-        "prägnant, keine Füllwörter",
-        "Begriffe klar definiert",
-        "verwendete Theorie muss erkennbar sein",
-        "These klar formuliert",
-        "Zettellänge maximal wie angegeben",
-    ],
+    ["keine personenbezogenen Daten", "prägnant, keine Füllwörter", "Begriffe klar definiert", "verwendete Theorie muss erkennbar sein", "These klar formuliert", "Zettellänge maximal wie angegeben"],
     key_text="must_text",
     key_dropdown="must_select"
 )
 
 nice_kriterien = kriterienfeld(
     "Nice-to-have",
-    [
-        "überraschendes Bild",
-        "prägnanter Merksatz",
-        "Verbindung zu Luhmann",
-        "analoge Beispiele",
-        "Querverweise zu anderen Zetteln",
-        "humorvolle Formulierung",
-    ],
+    ["überraschendes Bild", "prägnanter Merksatz", "Verbindung zu Luhmann", "analoge Beispiele", "Querverweise zu anderen Zetteln", "humorvolle Formulierung"],
     key_text="nice_text",
     key_dropdown="nice_select"
 )
 
 exclude_kriterien = kriterienfeld(
     "Ausschlüsse",
-    [
-        "Fachjargon ohne Erklärung",
-        "Quellen erfinden",
-        "GPT verweist auf sich selbst",
-        "unbelegte Allgemeinplätze",
-        "Floskeln ohne Gehalt",
-    ],
+    ["Fachjargon ohne Erklärung", "Quellen erfinden", "GPT verweist auf sich selbst", "unbelegte Allgemeinplätze", "Floskeln ohne Gehalt"],
     key_text="exclude_text",
     key_dropdown="exclude_select"
 )
@@ -134,52 +98,77 @@ st.markdown("### Briefing / Inhalt")
 briefing = st.text_area(
     "Worum geht's? (Thema, Thesen, Zitate/Quellen, zu verbindende Theorien …)",
     height=220,
-    placeholder="z. B. 'Begriff: Plastizität (Malabou) mit Predictive Processing koppeln; Risiken ästhetischer Metaphern; Bezug zu Luhmann.'"
+    placeholder="z. B. 'Begriff: Plastizität (Malabou) mit Predictive Processing koppeln; Risiken ästhetischer Metaphern; Bezug zu Luhmann.'",
+    key="briefing" # Key für Reset hinzugefügt
 )
 
 # ---------- Prompt erstellen ----------
-header = {
-    "protocol": "zettel.app/1.0",
-    "timestamp": datetime.utcnow().isoformat() + "Z",
-    "locale": "de-DE",
-    "profile": "zettel",
-    "meta": {
-        "denkhorizont": denkhorizont,
-        "ausdrucksmodus": ausdrucksmodus,
-        "ziel": ziel,
-        "ausgabe_format": ausgabe,
-        "laenge_woerter": laenge
-    },
-    "struktur": struktur,
-    "compliance": ["keine_personenbezogenen_daten"],
-    "prio": ["must", "meta", "nice_to_have"],
-    "constraints": {
-        "must": must_kriterien,
-        "nice_to_have": nice_kriterien,
-        "exclude": exclude_kriterien
+if st.button("🚀 Prompt generieren"):
+    header = {
+        "protocol": "zettel.app/1.0",
+        "timestamp": datetime.utcnow().isoformat() + "Z",
+        "locale": "de-DE",
+        "profile": "zettel",
+        "meta": {
+            "denkhorizont": denkhorizont,
+            "ausdrucksmodus": ausdrucksmodus,
+            "ziel": ziel,
+            "ausgabe_format": ausgabe,
+            "laenge_woerter": laenge
+        },
+        "struktur": struktur,
+        "compliance": ["keine_personenbezogenen_daten"],
+        "prio": ["must", "meta", "nice_to_have"],
+        "constraints": {
+            "must": must_kriterien,
+            "nice_to_have": nice_kriterien,
+            "exclude": exclude_kriterien
+        }
     }
-}
 
-header_json = json.dumps(header, ensure_ascii=False, indent=2)
-final_prompt = f"""[HEADER_JSON_START]
+    header_json = json.dumps(header, ensure_ascii=False, indent=2)
+    final_prompt = f"""[HEADER_JSON_START]
 {header_json}
 [HEADER_JSON_END]
 
 [CONTENT_START]
 {(briefing or '').strip()}
 [CONTENT_END]""".strip()
+    
+    # Speichere den generierten Prompt im Session State, um ihn anzuzeigen
+    st.session_state.final_prompt = final_prompt
 
-# ---------- Vorschau und Kopierfeld ----------
-st.markdown("### 📋 Prompt zum Kopieren (STRG+C oder Rechtsklick)")
-st.text_area("Finaler Prompt", value=final_prompt, height=380, key="copy_area")
+# ---------- Vorschau und Aktionen, nur wenn Prompt generiert wurde ----------
+if 'final_prompt' in st.session_state and st.session_state.final_prompt:
+    st.markdown("### 📋 Finaler Prompt")
+    # NEU: st.code statt st.text_area, mit integriertem Kopier-Button
+    st.code(st.session_state.final_prompt, language="plaintext")
 
-# ---------- Download ----------
-st.download_button(
-    "⬇️ Als .txt speichern",
-    data=final_prompt.encode("utf-8"),
-    file_name="zettel_prompt.txt",
-    mime="text/plain"
-)
+    # --- Aktions-Buttons in Spalten ---
+    col1_act, col2_act = st.columns(2)
+
+    with col1_act:
+        st.download_button(
+            "⬇️ Als .txt speichern",
+            data=st.session_state.final_prompt.encode("utf-8"),
+            file_name="zettel_prompt.txt",
+            mime="text/plain",
+            use_container_width=True
+        )
+
+    with col2_act:
+        # NEU: Button zum Zurücksetzen des Interfaces
+        if st.button("🔄 Interface zurücksetzen", use_container_width=True):
+            # Liste aller Widget-Keys, die zurückgesetzt werden sollen
+            keys_to_reset = [
+                'denkhorizont', 'ausdrucksmodus', 'ziel', 'ausgabe', 'laenge', 'struktur',
+                'must_select', 'must_text', 'nice_select', 'nice_text', 'exclude_select', 'exclude_text',
+                'briefing', 'final_prompt'
+            ]
+            for key in keys_to_reset:
+                if key in st.session_state:
+                    del st.session_state[key]
+            st.rerun() # App neu ausführen, um die Standardwerte zu laden
 
 # ---------- Hinweis ----------
 st.markdown("---")
