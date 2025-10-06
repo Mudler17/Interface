@@ -37,7 +37,7 @@ with col1:
             "Essayist:in", "Poet:in", "Künstler:in", "Analogiebauer:in", "Narrativ-Designer:in",
         ],
         index=2,
-        key="denkhorizont" # Key für Reset hinzugefügt
+        key="denkhorizont" 
     )
 
     ausdrucksmodus = st.selectbox(
@@ -48,7 +48,7 @@ with col1:
             "kritisch & dialektisch", "experimentell & spielerisch",
         ],
         index=0,
-        key="ausdrucksmodus" # Key für Reset hinzugefügt
+        key="ausdrucksmodus"
     )
 
     ziel = st.selectbox(
@@ -58,7 +58,7 @@ with col1:
             "Theorie verbinden (Brückenzettel)", "Map of Content (Themenlandkarte)", "Kreativer Essay / Notiz",
         ],
         index=1,
-        key="ziel" # Key für Reset hinzugefügt
+        key="ziel"
     )
 
 with col2:
@@ -68,7 +68,7 @@ with col2:
         "Strukturelemente",
         ["leitidee", "herleitung", "beispiele", "reflexion", "implikationen", "offene_fragen", "begriffsarbeit", "verweise"],
         default=["leitidee", "herleitung", "reflexion"],
-        key="struktur" # Key für Reset hinzugefügt
+        key="struktur"
     )
 
 # ---------- Kriterien-Felder ----------
@@ -99,11 +99,11 @@ briefing = st.text_area(
     "Worum geht's? (Thema, Thesen, Zitate/Quellen, zu verbindende Theorien …)",
     height=220,
     placeholder="z. B. 'Begriff: Plastizität (Malabou) mit Predictive Processing koppeln; Risiken ästhetischer Metaphern; Bezug zu Luhmann.'",
-    key="briefing" # Key für Reset hinzugefügt
+    key="briefing"
 )
 
 # ---------- Prompt erstellen ----------
-if st.button("🚀 Prompt generieren"):
+if st.button("🚀 Prompt generieren", use_container_width=True):
     header = {
         "protocol": "zettel.app/1.0",
         "timestamp": datetime.utcnow().isoformat() + "Z",
@@ -141,7 +141,6 @@ if st.button("🚀 Prompt generieren"):
 # ---------- Vorschau und Aktionen, nur wenn Prompt generiert wurde ----------
 if 'final_prompt' in st.session_state and st.session_state.final_prompt:
     st.markdown("### 📋 Finaler Prompt")
-    # NEU: st.code statt st.text_area, mit integriertem Kopier-Button
     st.code(st.session_state.final_prompt, language="plaintext")
 
     # --- Aktions-Buttons in Spalten ---
@@ -157,19 +156,20 @@ if 'final_prompt' in st.session_state and st.session_state.final_prompt:
         )
 
     with col2_act:
-        # NEU: Button zum Zurücksetzen des Interfaces
         if st.button("🔄 Interface zurücksetzen", use_container_width=True):
-            # Liste aller Widget-Keys, die zurückgesetzt werden sollen
+            # Liste ALLER Keys, die zurückgesetzt werden sollen
+            # Inklusive des generierten Prompts selbst
             keys_to_reset = [
-                'denkhorizont', 'ausdrucksmodus', 'ziel', 'ausgabe', 'laenge', 'struktur',
-                'must_select', 'must_text', 'nice_select', 'nice_text', 'exclude_select', 'exclude_text',
-                'briefing', 'final_prompt'
+                'denkhorizont', 'ausdrucksmodus', 'ziel', 'ausgabe', 'laenge', 
+                'struktur', 'must_select', 'must_text', 'nice_select', 
+                'nice_text', 'exclude_select', 'exclude_text', 'briefing', 
+                'final_prompt' 
             ]
             for key in keys_to_reset:
                 if key in st.session_state:
                     del st.session_state[key]
-            st.rerun() # App neu ausführen, um die Standardwerte zu laden
+            st.rerun()
 
 # ---------- Hinweis ----------
 st.markdown("---")
-st.markdown("**Tipp:** Füge diesen Prompt in deinen CustomGPT ein. Der GPT sollte den oben beschriebenen Systemprompt nutzen, damit er den Header korrekt interpretiert und nur die gewünschte Ausgabe liefert.")
+st.markdown("**Tipp:** Füge diesen Prompt in deinen CustomGPT ein. Der GPT sollte einen passenden Systemprompt nutzen, damit er den Header korrekt interpretiert und nur die gewünschte Ausgabe liefert.")
