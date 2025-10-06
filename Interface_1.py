@@ -135,7 +135,6 @@ if st.button("🚀 Prompt generieren", use_container_width=True):
 {(briefing or '').strip()}
 [CONTENT_END]""".strip()
     
-    # Speichere den generierten Prompt im Session State, um ihn anzuzeigen
     st.session_state.final_prompt = final_prompt
 
 # ---------- Vorschau und Aktionen, nur wenn Prompt generiert wurde ----------
@@ -143,7 +142,6 @@ if 'final_prompt' in st.session_state and st.session_state.final_prompt:
     st.markdown("### 📋 Finaler Prompt")
     st.code(st.session_state.final_prompt, language="plaintext")
 
-    # --- Aktions-Buttons in Spalten ---
     col1_act, col2_act = st.columns(2)
 
     with col1_act:
@@ -156,18 +154,32 @@ if 'final_prompt' in st.session_state and st.session_state.final_prompt:
         )
 
     with col2_act:
+        # --- GEÄNDERTE LOGIK ZUM ZURÜCKSETZEN ---
         if st.button("🔄 Interface zurücksetzen", use_container_width=True):
-            # Liste ALLER Keys, die zurückgesetzt werden sollen
-            # Inklusive des generierten Prompts selbst
-            keys_to_reset = [
-                'denkhorizont', 'ausdrucksmodus', 'ziel', 'ausgabe', 'laenge', 
-                'struktur', 'must_select', 'must_text', 'nice_select', 
-                'nice_text', 'exclude_select', 'exclude_text', 'briefing', 
-                'final_prompt' 
-            ]
-            for key in keys_to_reset:
-                if key in st.session_state:
-                    del st.session_state[key]
+            # Setze Auswahlboxen und Slider auf ihre initialen Standardwerte zurück
+            st.session_state.denkhorizont = "Phänomenolog:in" # Index 2
+            st.session_state.ausdrucksmodus = "präzise & analytisch" # Index 0
+            st.session_state.ziel = "These entwickeln" # Index 1
+            st.session_state.ausgabe = "markdown" # Index 0
+            st.session_state.laenge = 500 # Standardwert
+
+            # Leere explizit alle Mehrfachauswahlen, indem eine leere Liste gesetzt wird
+            st.session_state.struktur = []
+            st.session_state.must_select = []
+            st.session_state.nice_select = []
+            st.session_state.exclude_select = []
+
+            # Leere explizit alle Textfelder, indem ein leerer String gesetzt wird
+            st.session_state.must_text = ""
+            st.session_state.nice_text = ""
+            st.session_state.exclude_text = ""
+            st.session_state.briefing = ""
+
+            # Lösche den generierten Prompt aus dem Speicher
+            if 'final_prompt' in st.session_state:
+                del st.session_state['final_prompt']
+            
+            # Lade die App neu, um die Änderungen anzuzeigen
             st.rerun()
 
 # ---------- Hinweis ----------
