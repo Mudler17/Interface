@@ -2,6 +2,35 @@ import json
 from datetime import datetime
 import streamlit as st
 
+# --- NEU: Callback-Funktion zum Zurücksetzen ---
+# Diese Funktion wird aufgerufen, wenn der Reset-Button geklickt wird.
+def reset_session_state():
+    """Setzt alle Eingabefelder und den Output auf den Anfangszustand zurück."""
+    
+    # Setze Auswahlboxen und Slider auf ihre initialen Standardwerte zurück
+    st.session_state.denkhorizont = "Phänomenolog:in" # Index 2
+    st.session_state.ausdrucksmodus = "präzise & analytisch" # Index 0
+    st.session_state.ziel = "These entwickeln" # Index 1
+    st.session_state.ausgabe = "markdown" # Index 0
+    st.session_state.laenge = 500 # Standardwert
+
+    # Leere explizit alle Mehrfachauswahlen, indem eine leere Liste gesetzt wird
+    st.session_state.struktur = []
+    st.session_state.must_select = []
+    st.session_state.nice_select = []
+    st.session_state.exclude_select = []
+
+    # Leere explizit alle Textfelder, indem ein leerer String gesetzt wird
+    st.session_state.must_text = ""
+    st.session_state.nice_text = ""
+    st.session_state.exclude_text = ""
+    st.session_state.briefing = ""
+
+    # Lösche den generierten Prompt aus dem Speicher
+    if 'final_prompt' in st.session_state:
+        del st.session_state['final_prompt']
+
+
 # Seiteneinstellungen
 st.set_page_config(page_title="Zettelkasten · Philosophischer Promptbuilder", page_icon="🗂️", layout="wide")
 st.title("🗂️ Zettelkasten · Philosophischer Promptbuilder")
@@ -37,7 +66,7 @@ with col1:
             "Essayist:in", "Poet:in", "Künstler:in", "Analogiebauer:in", "Narrativ-Designer:in",
         ],
         index=2,
-        key="denkhorizont" 
+        key="denkhorizont"
     )
 
     ausdrucksmodus = st.selectbox(
@@ -72,20 +101,19 @@ with col2:
     )
 
 # ---------- Kriterien-Felder ----------
+# (Dieser Teil bleibt unverändert)
 must_kriterien = kriterienfeld(
     "Muss-Kriterien",
     ["keine personenbezogenen Daten", "prägnant, keine Füllwörter", "Begriffe klar definiert", "verwendete Theorie muss erkennbar sein", "These klar formuliert", "Zettellänge maximal wie angegeben"],
     key_text="must_text",
     key_dropdown="must_select"
 )
-
 nice_kriterien = kriterienfeld(
     "Nice-to-have",
     ["überraschendes Bild", "prägnanter Merksatz", "Verbindung zu Luhmann", "analoge Beispiele", "Querverweise zu anderen Zetteln", "humorvolle Formulierung"],
     key_text="nice_text",
     key_dropdown="nice_select"
 )
-
 exclude_kriterien = kriterienfeld(
     "Ausschlüsse",
     ["Fachjargon ohne Erklärung", "Quellen erfinden", "GPT verweist auf sich selbst", "unbelegte Allgemeinplätze", "Floskeln ohne Gehalt"],
@@ -94,7 +122,6 @@ exclude_kriterien = kriterienfeld(
 )
 
 # ---------- Briefing ----------
-st.markdown("### Briefing / Inhalt")
 briefing = st.text_area(
     "Worum geht's? (Thema, Thesen, Zitate/Quellen, zu verbindende Theorien …)",
     height=220,
@@ -154,33 +181,13 @@ if 'final_prompt' in st.session_state and st.session_state.final_prompt:
         )
 
     with col2_act:
-        # --- GEÄNDERTE LOGIK ZUM ZURÜCKSETZEN ---
-        if st.button("🔄 Interface zurücksetzen", use_container_width=True):
-            # Setze Auswahlboxen und Slider auf ihre initialen Standardwerte zurück
-            st.session_state.denkhorizont = "Phänomenolog:in" # Index 2
-            st.session_state.ausdrucksmodus = "präzise & analytisch" # Index 0
-            st.session_state.ziel = "These entwickeln" # Index 1
-            st.session_state.ausgabe = "markdown" # Index 0
-            st.session_state.laenge = 500 # Standardwert
-
-            # Leere explizit alle Mehrfachauswahlen, indem eine leere Liste gesetzt wird
-            st.session_state.struktur = []
-            st.session_state.must_select = []
-            st.session_state.nice_select = []
-            st.session_state.exclude_select = []
-
-            # Leere explizit alle Textfelder, indem ein leerer String gesetzt wird
-            st.session_state.must_text = ""
-            st.session_state.nice_text = ""
-            st.session_state.exclude_text = ""
-            st.session_state.briefing = ""
-
-            # Lösche den generierten Prompt aus dem Speicher
-            if 'final_prompt' in st.session_state:
-                del st.session_state['final_prompt']
-            
-            # Lade die App neu, um die Änderungen anzuzeigen
-            st.rerun()
+        # --- GEÄNDERTER AUFRUF MIT on_click ---
+        # Die Logik ist jetzt in der Funktion reset_session_state gekapselt.
+        st.button(
+            "🔄 Interface zurücksetzen",
+            on_click=reset_session_state,
+            use_container_width=True
+        )
 
 # ---------- Hinweis ----------
 st.markdown("---")
